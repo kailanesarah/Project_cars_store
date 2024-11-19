@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 ##Essas classes disponibilizam forms prontos do Django: UserCreationForm, AuthenticationForm
 ## O primeiro cria formilários próprios para cadastros e o segundo cria um form para o login do usuário 
 
-
+#Registra um novo user
 def register_view(request):
     
     if request.method == "POST":
@@ -45,3 +45,8 @@ def login_view(request):
         'login.html',
         {'form_login': form_login}
     )
+    
+def logout_view(request):
+    logout(request)
+    return redirect('cars_list')
+    
