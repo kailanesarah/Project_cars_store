@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth.views import LoginView
+from django.contrib.auth import authenticate, login
+from django.shortcuts import redirect
 ##Essas classes disponibilizam forms prontos do Django: UserCreationForm, AuthenticationForm
 ## O primeiro cria formilários próprios para cadastros e o segundo cria um form para o login do usuário 
 
 #Registra um novo user
+    
 def register_view(request):
     
     if request.method == "POST":
@@ -23,30 +27,25 @@ def register_view(request):
         
     )    
 
-def login_view(request):
+class loginView(LoginView):
+    template_name = 'login.html'  # Nome do template personalizado
+   
     
-    if request.method == "POST":
-       username = request.POST["username"]
-       password = request.POST["password"]
-       data_user = authenticate(request, username=username, password=password) 
-       
-       if data_user is not None:
-           login(request, data_user)
-           return redirect("cars_list")
-       else:
-           form_login = AuthenticationForm()
-    
-    else:
-        form_login = AuthenticationForm()
+    def form_valid(self, form):
+        username = form.cleaned_data.get("username")
+        password = form.cleaned_data.get("password")
         
+        user = authenticate(username=username, password=password)
         
-    return render(
-        request,
-        'login.html',
-        {'form_login': form_login}
-    )
+        if user is not None:
+            login(self.request, user)
+            print(f"Usuário autenticado {username}")
+            return redirect('cars')
+        else:
+            return self.form_invalid(form)
+
     
 def logout_view(request):
     logout(request)
-    return redirect('cars_list')
+    return redirect('cars')
     

@@ -1,43 +1,66 @@
-from django.shortcuts import redirect, render
+
+from django.views.generic import ListView, TemplateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.detail import DetailView
 from cars.models import Car
-from cars.forms import new_car_form
 from cars.forms import register_car
+from django.urls import reverse_lazy 
 
-#Página principal de carros
-def cars_view(request):
-    cars = Car.objects.all().order_by('model') #trás todos os dados do banco de dados e ordena pelo campo da tabela
-    search = request.GET.get('search') #pega a chave search da URL
-    
-    if search:
-        cars = cars.filter(model__icontains = search)
-        
-    return render(
-        request, 
-        'cars.html', 
-        {'cars' : cars} #o ultimo parametro trata o que o página vai renderizar
-        )
 
-#Página para adicionar um novo carro com form
-def new_car_view(request):
+
+
+class ConfirmTemplate(TemplateView):
+    template_name = "sucesso.html"
     
-    #verificando o form
-    if request.method == "POST":
+    
+    
+class ListCars(ListView):
+    model= Car
+    template_name = "cars.html"
+    context_object_name = "cars"
+    
+    def get_queryset(self):
+        cars = super().get_queryset().order_by('model') #acessa a classe pai e chama o método queryset e ordena
+        search = self.request.GET.get('search') #pega os dados do campo pesquisa e armazena na variável
         
-        new_car = register_car(request.POST, request.FILES)
+        if search:
+            cars= cars.filter(model__icontains=search)
         
-        if new_car.is_valid():
-            print("Dados validados com sucesso!\n")
-            new_car.save() #chamando o método para salvar os dados no BD
-            return redirect('cars_list') #redirecionando para a lista de carros
-            
-    else:
-        new_car= register_car() #criando um form vazio
+        return cars
     
-    return render(
-        request,
-        'new_car.html',
-        {'new_car_form_view': new_car}
-        )
-        
+
+class RegisterCars(CreateView):
+    model = Car
+    template_name = "new_car.html"
+    form_class = register_car
+    success_url = reverse_lazy('confirm') #name da url
+  
+
+class DetailCar(DetailView):
+    model = Car
+    template_name = "car_detail.html"
     
     
+
+class UpdateCar(UpdateView):
+    model = Car
+    template_name = "car_update.html"
+    form_class = register_car
+    success_url = "cars"
+    
+    def get_success_url(self):
+        return reverse_lazy('car_detail', kwargs={'pk': self.object.pk}) #URL personalizada com parametro
+    
+    
+class DeleteCar(DeleteView):
+    model = Car
+    template_name = "car_delete.html"
+    success_url = reverse_lazy('cars') #name da url
+    
+
+    
+
+
+
+
+

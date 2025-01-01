@@ -18,16 +18,21 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from cars.views import cars_view
-from cars.views import new_car_view
-from accounts.views import register_view
-from accounts.views import login_view, logout_view
+from cars.views import ListCars, RegisterCars, ConfirmTemplate, DetailCar, UpdateCar, DeleteCar
+from accounts.views import register_view, loginView, logout_view
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cars/', cars_view, name = 'cars_list'), #url, nome da view, name da view
-    path('new_car/', new_car_view, name = 'new_car'),
-    path('register/', register_view, name = 'register'),
-    path('login/', login_view, name='login'),
+    path('cars/', ListCars.as_view(), name='cars' ),
+    path('new_car/', RegisterCars.as_view(), name='new_car'),
+    path('car/<int:pk>/', DetailCar.as_view(), name='car_detail'),
+    path('car/<int:pk>/update',UpdateCar.as_view(), name="car_update" ),
+    path('car/<int:pk>/delete',DeleteCar.as_view(), name="car_delete" ),
+    path('confirm/', ConfirmTemplate.as_view(), name='confirm'),
+    path('new_user/', register_view, name='new_user'),
+    path('login/', loginView.as_view(), name='login'),
     path('logout/', logout_view, name='logout')
-] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+    
+        ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+ 
