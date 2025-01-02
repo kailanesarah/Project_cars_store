@@ -5,13 +5,12 @@ from django.views.generic.detail import DetailView
 from cars.models import Car
 from cars.forms import register_car
 from django.urls import reverse_lazy 
-
-
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
 class ConfirmTemplate(TemplateView):
     template_name = "sucesso.html"
-    
     
     
 class ListCars(ListView):
@@ -28,20 +27,22 @@ class ListCars(ListView):
         
         return cars
     
-
-class RegisterCars(CreateView):
-    model = Car
-    template_name = "new_car.html"
-    form_class = register_car
-    success_url = reverse_lazy('confirm') #name da url
-  
-
+    
 class DetailCar(DetailView):
     model = Car
     template_name = "car_detail.html"
     
     
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class RegisterCars(CreateView):
+    model = Car
+    template_name = "new_car.html"
+    form_class = register_car
+    success_url = reverse_lazy('confirm') #name da url
+    
+  
 
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class UpdateCar(UpdateView):
     model = Car
     template_name = "car_update.html"
@@ -52,6 +53,7 @@ class UpdateCar(UpdateView):
         return reverse_lazy('car_detail', kwargs={'pk': self.object.pk}) #URL personalizada com parametro
     
     
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class DeleteCar(DeleteView):
     model = Car
     template_name = "car_delete.html"
